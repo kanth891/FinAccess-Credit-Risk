@@ -23,7 +23,4 @@ class Config:
         f"@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DB}"
     )
 
-    # Fallback to SQLite if MySQL is unavailable
-    SQLITE_URI = 'sqlite:///finaccess.db'
-
     SQLALCHEMY_TRACK_MODIFICATIONS = False

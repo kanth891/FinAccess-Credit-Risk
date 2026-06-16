@@ -21,7 +21,7 @@ def create_app():
     app.config['JWT_HEADER_NAME'] = 'Authorization'
     app.config['JWT_HEADER_TYPE'] = 'Bearer'
 
-    # Try MySQL first, fallback to SQLite
+    # Use MySQL
     db_uri = _get_database_uri(Config)
     app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
 
@@ -52,7 +52,7 @@ def create_app():
 
 
 def _get_database_uri(Config):
-    """Try MySQL, fallback to SQLite."""
+    """Connect to MySQL."""
     try:
         conn = pymysql.connect(
             host=Config.MYSQL_HOST,
@@ -68,8 +68,8 @@ def _get_database_uri(Config):
         print(f"[DB] Connected to MySQL. Using database: {Config.MYSQL_DB}")
         return Config.MYSQL_URI
     except Exception as e:
-        print(f"[DB] MySQL unavailable ({e}). Falling back to SQLite.")
-        return Config.SQLITE_URI
+        print(f"[DB] MySQL unavailable ({e}). Please check your MySQL configuration and ensure the server is running.")
+        raise
 
 
 def _seed_admin():
