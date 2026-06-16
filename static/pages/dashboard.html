@@ -86,7 +86,7 @@
                 const user = data.user;
 
                 // Welcome
-                document.getElementById('welcomeMsg').textContent = `Welcome back, ${user.name.split(' ')[0]}! <i class="fa-solid fa-hand"></i>`;
+                document.getElementById('welcomeMsg').innerHTML = `Welcome back, ${user.name.split(' ')[0]}! <i class="fa-solid fa-hand"></i>`;
 
                 // Counters
                 const total = data.total, approved = data.approved, rejected = data.rejected;

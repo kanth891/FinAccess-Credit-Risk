@@ -166,11 +166,11 @@
             if (!score) return;
             ind.style.display = 'inline-block';
             lbl.style.display = 'inline';
-            if (score >= 750) { ind.style.background='#06b6d4'; lbl.textContent='⭐ Excellent'; }
-            else if (score >= 700) { ind.style.background='#22c55e'; lbl.textContent='<i class="fa-solid fa-check" style="color: #22c55e;"></i> Good'; }
-            else if (score >= 650) { ind.style.background='#eab308'; lbl.textContent='<i class="fa-solid fa-triangle-exclamation" style="color: #f59e0b;"></i> Fair'; }
-            else if (score >= 600) { ind.style.background='#f97316'; lbl.textContent='<i class="fa-solid fa-triangle-exclamation" style="color: #f59e0b;"></i> Poor'; }
-            else { ind.style.background='#ef4444'; lbl.textContent='<i class="fa-solid fa-xmark" style="color: #ef4444;"></i> Very Poor'; }
+            if (score >= 750) { ind.style.background='#06b6d4'; lbl.innerHTML='⭐ Excellent'; }
+            else if (score >= 700) { ind.style.background='#22c55e'; lbl.innerHTML='<i class="fa-solid fa-check" style="color: #22c55e;"></i> Good'; }
+            else if (score >= 650) { ind.style.background='#eab308'; lbl.innerHTML='<i class="fa-solid fa-triangle-exclamation" style="color: #f59e0b;"></i> Fair'; }
+            else if (score >= 600) { ind.style.background='#f97316'; lbl.innerHTML='<i class="fa-solid fa-triangle-exclamation" style="color: #f59e0b;"></i> Poor'; }
+            else { ind.style.background='#ef4444'; lbl.innerHTML='<i class="fa-solid fa-xmark" style="color: #ef4444;"></i> Very Poor'; }
         });
 
         document.getElementById('applyForm').addEventListener('submit', async function(e) {
