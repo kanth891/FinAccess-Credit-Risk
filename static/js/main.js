@@ -151,7 +151,7 @@ const UI = {
     },
 
     // Format currency
-    currency(n) { return '$' + Number(n).toLocaleString(); },
+    currency(n) { return '₹' + Number(n).toLocaleString(); },
 
     // Format date
     date(str) {

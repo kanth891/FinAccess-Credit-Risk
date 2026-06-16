@@ -134,7 +134,7 @@ FinAccess/
 
 | Condition | Effect |
 |---|---|
-| Income ≥ $80K | Strong approval boost |
+| Income ≥ ₹80K | Strong approval boost |
 | Credit Score ≥ 750 | Highest approval weight |
 | Debt/Income > 50% | Strong rejection signal |
 | Employment: Unemployed | Significant rejection signal |
