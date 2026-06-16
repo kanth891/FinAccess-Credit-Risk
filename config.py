@@ -2,10 +2,10 @@ import os
 
 class Config:
     # Secret key for Flask sessions and JWT
-    SECRET_KEY = os.environ.get('SECRET_KEY', 'finaccess-secret-key-2024-change-in-production')
+    SECRET_KEY = os.environ.get('SECRET_KEY', 'finaccess-secret-key-2026-change-in-production')
 
     # JWT Configuration
-    JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY', 'finaccess-jwt-secret-2024-change-in-production')
+    JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY', 'finaccess-jwt-secret-2026-change-in-production')
     JWT_TOKEN_LOCATION = ['cookies']
     JWT_COOKIE_SECURE = False          # Set True in production with HTTPS
     JWT_COOKIE_CSRF_PROTECT = False    # Simplified for student project
