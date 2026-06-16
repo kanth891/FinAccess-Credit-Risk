@@ -19,28 +19,29 @@ def generate_dataset(n=10000, seed=42):
 
     for _ in range(n):
         age = int(np.random.randint(21, 65))
-        annual_income = int(np.random.choice(
+        base_annual_income = int(np.random.choice(
             [np.random.randint(15000, 40000),
              np.random.randint(40000, 90000),
              np.random.randint(90000, 250000)],
             p=[0.35, 0.45, 0.20]
         ))
+        annual_income = base_annual_income * 80
         employment_type = np.random.choice(employment_types, p=[0.60, 0.28, 0.12])
         years_employed = int(np.random.randint(0, 30))
         credit_score = int(np.clip(np.random.normal(650, 100), 300, 850))
-        existing_debt = int(np.random.randint(0, min(annual_income, 80000)))
-        loan_amount = int(np.random.randint(5000, 300000))
+        existing_debt = int(np.random.randint(0, min(base_annual_income, 80000))) * 80
+        loan_amount = int(np.random.randint(5000, 300000)) * 80
         loan_term = int(np.random.choice([12, 24, 36, 48, 60, 120, 180, 240, 360]))
 
         # Approval score based on realistic rules
         score = 0.0
 
         # Income factor
-        if annual_income >= 80000:
+        if annual_income >= 80000 * 80:
             score += 2.5
-        elif annual_income >= 40000:
+        elif annual_income >= 40000 * 80:
             score += 1.5
-        elif annual_income >= 20000:
+        elif annual_income >= 20000 * 80:
             score += 0.5
         else:
             score -= 1.0
