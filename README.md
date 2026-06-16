@@ -21,7 +21,7 @@ A student-level academic project that demonstrates end-to-end machine learning i
 | Layer        | Technology |
 |---|---|
 | Backend      | Python Flask, Flask-SQLAlchemy, Flask-JWT-Extended |
-| Database     | MySQL (auto-fallback to SQLite) |
+| Database     | MySQL (Configured via .env) |
 | ML           | Scikit-Learn (RandomForestClassifier) |
 | Explainability | SHAP (TreeExplainer) |
 | Frontend     | HTML5, CSS3, Vanilla JavaScript, Jinja2 |
@@ -36,21 +36,15 @@ A student-level academic project that demonstrates end-to-end machine learning i
 pip install -r requirements.txt
 ```
 
-### 2. Configure Database (Optional)
+### 2. Configure Database
 
-By default, the app connects to MySQL on `localhost` with user `root` and no password.
+The application connects to a MySQL database using a `DATABASE_URL` environment variable.
 
-To use custom credentials, set environment variables before running:
+Create a `.env` file in the root directory and add your connection string:
 
-```bash
-# Windows PowerShell
-$env:MYSQL_USER = "root"
-$env:MYSQL_PASSWORD = "yourpassword"
-$env:MYSQL_HOST = "localhost"
-$env:MYSQL_DB = "finaccess_db"
+```env
+DATABASE_URL=mysql+pymysql://username:password@host:port/database_name
 ```
-
-> **Note:** If MySQL is unavailable, the app automatically falls back to SQLite (`finaccess.db`).
 
 ### 3. Run the Application
 

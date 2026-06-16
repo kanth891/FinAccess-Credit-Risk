@@ -101,8 +101,9 @@ Every web app does four basic database operations, known as CRUD. Here is how SQ
 ## 4. File-by-File Breakdown
 
 ### The Root Directory
-*   `run.py`: The entry point. You run `python run.py`. It imports the Flask app and calls `app.run()`.
+*   `run.py`: The entry point. You run `python run.py`. It imports the Flask app, loads the `.env` variables, and calls `app.run()`.
 *   `config.py`: Holds configuration variables (Database URI, JWT Secret Key).
+*   `.env`: Holds sensitive environment variables locally like your `DATABASE_URL`.
 *   `requirements.txt`: Lists all Python packages needed to run the project.
 
 ### `app/` (The Application Factory)
