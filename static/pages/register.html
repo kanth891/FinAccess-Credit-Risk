@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register | FinAccess</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <nav class="navbar" id="navbar"></nav>
+    <div id="flashContainer" class="flash-container"></div>
+
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="auth-icon">✨</div>
+                <h1 class="auth-title">Create Account</h1>
+                <p class="auth-subtitle">Join FinAccess to check your loan eligibility</p>
+            </div>
+
+            <form class="auth-form" id="registerForm">
+                <div class="form-group">
+                    <label for="name" class="form-label">Full Name</label>
+                    <input type="text" id="name" class="form-input" placeholder="John Doe" required autocomplete="name">
+                </div>
+                <div class="form-group">
+                    <label for="email" class="form-label">Email Address</label>
+                    <input type="email" id="email" class="form-input" placeholder="you@example.com" required autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <label for="password" class="form-label">Password</label>
+                    <div class="input-wrapper">
+                        <input type="password" id="password" class="form-input"
+                               placeholder="Min. 6 characters" required minlength="6" autocomplete="new-password">
+                        <button type="button" class="toggle-password" onclick="togglePassword('password')"><i class="fa-regular fa-eye"></i></button>
+                    </div>
+                    <div class="password-strength"><div class="strength-fill" id="strengthFill"></div></div>
+                    <span class="strength-label" id="strengthLabel"></span>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full" id="registerBtn">Create Account</button>
+            </form>
+
+            <div class="auth-footer">
+                <p>Already have an account? <a href="/login" class="auth-link">Sign in</a></p>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer"><div class="footer-container"><p>&copy; 2024 FinAccess</p></div></footer>
+
+    <script src="/static/js/main.js"></script>
+    <script>
+        Auth.requireGuest();
+        UI.renderNavbar('register');
+
+        // Password strength indicator
+        document.getElementById('password').addEventListener('input', function() {
+            const val = this.value;
+            const fill = document.getElementById('strengthFill');
+            const label = document.getElementById('strengthLabel');
+            let s = 0;
+            if (val.length >= 6) s++;
+            if (val.length >= 10) s++;
+            if (/[A-Z]/.test(val)) s++;
+            if (/[0-9]/.test(val)) s++;
+            if (/[^A-Za-z0-9]/.test(val)) s++;
+            const colors = ['','#ef4444','#f97316','#eab308','#22c55e','#06b6d4'];
+            const labels = ['','Very Weak','Weak','Fair','Strong','Very Strong'];
+            fill.style.width = (s * 20) + '%';
+            fill.style.background = colors[s] || '#ef4444';
+            label.textContent = labels[s] || '';
+            label.style.color = colors[s] || '#ef4444';
+        });
+
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('registerBtn');
+            btn.textContent = 'Creating Account...';
+            btn.disabled = true;
+
+            try {
+                await API.post('/api/auth/register', {
+                    name: document.getElementById('name').value.trim(),
+                    email: document.getElementById('email').value.trim(),
+                    password: document.getElementById('password').value
+                });
+                Flash.success('Account created! Redirecting to login...');
+                setTimeout(() => window.location.href = '/login', 1500);
+            } catch (err) {
+                Flash.error(err.message);
+                btn.textContent = 'Create Account';
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

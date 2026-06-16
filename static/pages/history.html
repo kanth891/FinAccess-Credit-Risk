@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application History | FinAccess</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <nav class="navbar" id="navbar"></nav>
+    <div id="flashContainer" class="flash-container"></div>
+
+    <div class="page-container">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">Application History</h1>
+                <p class="page-subtitle" id="historySubtitle">Loading...</p>
+            </div>
+            <a href="/apply" class="btn btn-primary">+ New Application</a>
+        </div>
+
+        <div class="card">
+            <div class="card-body" id="historyBody">
+                <div class="empty-state">
+                    <div class="empty-icon"><i class="fa-solid fa-hourglass-half"></i></div>
+                    <h3 class="empty-title">Loading...</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer"><div class="footer-container">
+        <p>&copy; 2024 FinAccess – AI-Powered Credit Risk Assessment</p>
+        <p class="footer-sub">Academic Project · Built with Flask, Scikit-Learn &amp; SHAP</p>
+    </div></footer>
+
+    <script src="/static/js/main.js"></script>
+    <script>
+        if (!Auth.requireAuth()) throw new Error('not authed');
+        UI.renderNavbar('history');
+
+        async function loadHistory() {
+            try {
+                const data = await API.get('/api/history');
+                const apps = data.applications;
+                document.getElementById('historySubtitle').textContent =
+                    `All your past loan applications — ${apps.length} total`;
+
+                const body = document.getElementById('historyBody');
+                if (apps.length === 0) {
+                    body.innerHTML = `<div class="empty-state">
+                        <div class="empty-icon"><i class="fa-solid fa-inbox"></i></div>
+                        <h3 class="empty-title">No applications found</h3>
+                        <p class="empty-desc">You haven't submitted any loan applications yet.</p>
+                        <a href="/apply" class="btn btn-primary">Apply Now</a>
+                    </div>`;
+                    return;
+                }
+
+                body.innerHTML = `<div class="table-wrapper"><table class="data-table">
+                    <thead><tr>
+                        <th>#</th><th>Date</th><th>Loan Amount</th><th>Credit Score</th>
+                        <th>Income</th><th>Employment</th><th>Risk Score</th><th>Prob.</th><th>Decision</th><th>Details</th>
+                    </tr></thead>
+                    <tbody>${apps.map(a => `<tr>
+                        <td class="text-muted">${a.id}</td>
+                        <td>${UI.date(a.created_at)}</td>
+                        <td>${UI.currency(a.loan_amount)}</td>
+                        <td>${UI.creditChip(a.credit_score)}</td>
+                        <td>${UI.currency(a.annual_income)}</td>
+                        <td>${a.employment_type}</td>
+                        <td>${UI.riskBar(a.risk_score)}</td>
+                        <td>${a.approval_probability}%</td>
+                        <td>${UI.badge(a.decision)}</td>
+                        <td><a href="/result?id=${a.id}" class="btn btn-ghost btn-xs">View →</a></td>
+                    </tr>`).join('')}
+                    </tbody></table></div>`;
+
+                UI.animateProgressBars();
+            } catch (err) {
+                Flash.error('Failed to load history: ' + err.message);
+            }
+        }
+
+        loadHistory();
+    </script>
+</body>
+</html>

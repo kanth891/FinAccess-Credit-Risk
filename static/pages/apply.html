@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apply for Loan | FinAccess</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <nav class="navbar" id="navbar"></nav>
+    <div id="flashContainer" class="flash-container"></div>
+
+    <div class="page-container">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">Loan Application</h1>
+                <p class="page-subtitle">Fill in your details for an instant AI eligibility assessment</p>
+            </div>
+        </div>
+
+        <div class="apply-layout">
+            <!-- Form -->
+            <div class="card apply-card">
+                <div class="card-body">
+                    <form id="applyForm">
+                        <!-- Personal Info -->
+                        <div class="form-section">
+                            <h3 class="form-section-title"><span class="section-icon"><i class="fa-solid fa-user"></i></span> Personal Information</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="age" class="form-label">Age <span class="required">*</span></label>
+                                    <input type="number" id="age" class="form-input" min="18" max="80" placeholder="e.g. 35" required>
+                                    <span class="form-hint">Between 18 and 80 years</span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="employment_type" class="form-label">Employment Type <span class="required">*</span></label>
+                                    <select id="employment_type" class="form-input form-select" required>
+                                        <option value="" disabled selected>Select type</option>
+                                        <option value="Employed">Employed (Full-time/Part-time)</option>
+                                        <option value="Self-Employed">Self-Employed / Business</option>
+                                        <option value="Unemployed">Unemployed</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="years_employed" class="form-label">Years Employed <span class="required">*</span></label>
+                                    <input type="number" id="years_employed" class="form-input" min="0" max="50" placeholder="e.g. 5" required>
+                                    <span class="form-hint">Total years of work experience</span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="annual_income" class="form-label">Annual Income ($) <span class="required">*</span></label>
+                                    <input type="number" id="annual_income" class="form-input" min="0" step="1000" placeholder="e.g. 75000" required>
+                                    <span class="form-hint">Gross income before taxes</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Financial Profile -->
+                        <div class="form-section">
+                            <h3 class="form-section-title"><span class="section-icon"><i class="fa-regular fa-credit-card"></i></span> Financial Profile</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="credit_score" class="form-label">Credit Score <span class="required">*</span></label>
+                                    <input type="number" id="credit_score" class="form-input" min="300" max="850" placeholder="e.g. 720" required>
+                                    <div class="credit-score-hint">
+                                        <div class="score-indicator" id="scoreIndicator" style="display:none"></div>
+                                        <span id="scoreLabel"></span>
+                                    </div>
+                                    <span class="form-hint">FICO score range: 300 – 850</span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="existing_debt" class="form-label">Existing Debt ($) <span class="required">*</span></label>
+                                    <input type="number" id="existing_debt" class="form-input" min="0" step="500" placeholder="e.g. 15000" required>
+                                    <span class="form-hint">Total current outstanding debt</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Loan Details -->
+                        <div class="form-section">
+                            <h3 class="form-section-title"><span class="section-icon"><i class="fa-solid fa-building-columns"></i></span> Loan Details</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="loan_amount" class="form-label">Loan Amount ($) <span class="required">*</span></label>
+                                    <input type="number" id="loan_amount" class="form-input" min="1000" step="1000" placeholder="e.g. 50000" required>
+                                    <span class="form-hint">Amount you wish to borrow</span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="loan_term" class="form-label">Loan Term (months) <span class="required">*</span></label>
+                                    <select id="loan_term" class="form-input form-select" required>
+                                        <option value="" disabled selected>Select term</option>
+                                        <option value="12">12 months (1 year)</option>
+                                        <option value="24">24 months (2 years)</option>
+                                        <option value="36">36 months (3 years)</option>
+                                        <option value="48">48 months (4 years)</option>
+                                        <option value="60">60 months (5 years)</option>
+                                        <option value="120">120 months (10 years)</option>
+                                        <option value="180">180 months (15 years)</option>
+                                        <option value="240">240 months (20 years)</option>
+                                        <option value="360">360 months (30 years)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <a href="/dashboard" class="btn btn-outline">Cancel</a>
+                            <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
+                                <span id="submitText"><i class="fa-solid fa-brain"></i> Get AI Prediction</span>
+                                <span id="submitLoading" class="hidden"><i class="fa-solid fa-hourglass-half"></i> Analyzing...</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="apply-sidebar">
+                <div class="card sidebar-card">
+                    <div class="card-body">
+                        <h3 class="sidebar-title"><i class="fa-regular fa-lightbulb"></i> Tips for Better Results</h3>
+                        <ul class="tips-list">
+                            <li><strong>Credit Score:</strong> 700+ significantly improves chances</li>
+                            <li><strong>Income:</strong> Higher income demonstrates repayment ability</li>
+                            <li><strong>Debt:</strong> Keep debt below 35% of annual income</li>
+                            <li><strong>Employment:</strong> Stable employment history is valued</li>
+                            <li><strong>Loan Amount:</strong> Borrow proportionate to your income</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card sidebar-card score-guide-card">
+                    <div class="card-body">
+                        <h3 class="sidebar-title"><i class="fa-solid fa-chart-column"></i> Credit Score Guide</h3>
+                        <div class="score-guide">
+                            <div class="score-range excellent"><span class="range-label">750–850</span><span class="range-text">Excellent</span></div>
+                            <div class="score-range good"><span class="range-label">700–749</span><span class="range-text">Good</span></div>
+                            <div class="score-range fair"><span class="range-label">650–699</span><span class="range-text">Fair</span></div>
+                            <div class="score-range poor"><span class="range-label">600–649</span><span class="range-text">Poor</span></div>
+                            <div class="score-range bad"><span class="range-label">300–599</span><span class="range-text">Very Poor</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer"><div class="footer-container">
+        <p>&copy; 2024 FinAccess – AI-Powered Credit Risk Assessment</p>
+        <p class="footer-sub">Academic Project · Built with Flask, Scikit-Learn &amp; SHAP</p>
+    </div></footer>
+
+    <script src="/static/js/main.js"></script>
+    <script>
+        if (!Auth.requireAuth()) throw new Error('not authed');
+        UI.renderNavbar('apply');
+
+        // Live credit score indicator
+        document.getElementById('credit_score').addEventListener('input', function() {
+            const score = parseInt(this.value);
+            const ind = document.getElementById('scoreIndicator');
+            const lbl = document.getElementById('scoreLabel');
+            if (!score) return;
+            ind.style.display = 'inline-block';
+            lbl.style.display = 'inline';
+            if (score >= 750) { ind.style.background='#06b6d4'; lbl.textContent='⭐ Excellent'; }
+            else if (score >= 700) { ind.style.background='#22c55e'; lbl.textContent='<i class="fa-solid fa-check" style="color: #22c55e;"></i> Good'; }
+            else if (score >= 650) { ind.style.background='#eab308'; lbl.textContent='<i class="fa-solid fa-triangle-exclamation" style="color: #f59e0b;"></i> Fair'; }
+            else if (score >= 600) { ind.style.background='#f97316'; lbl.textContent='<i class="fa-solid fa-triangle-exclamation" style="color: #f59e0b;"></i> Poor'; }
+            else { ind.style.background='#ef4444'; lbl.textContent='<i class="fa-solid fa-xmark" style="color: #ef4444;"></i> Very Poor'; }
+        });
+
+        document.getElementById('applyForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            document.getElementById('submitText').classList.add('hidden');
+            document.getElementById('submitLoading').classList.remove('hidden');
+            document.getElementById('submitBtn').disabled = true;
+
+            try {
+                const data = await API.post('/api/apply', {
+                    age:             parseInt(document.getElementById('age').value),
+                    annual_income:   parseFloat(document.getElementById('annual_income').value),
+                    employment_type: document.getElementById('employment_type').value,
+                    years_employed:  parseInt(document.getElementById('years_employed').value),
+                    credit_score:    parseInt(document.getElementById('credit_score').value),
+                    existing_debt:   parseFloat(document.getElementById('existing_debt').value),
+                    loan_amount:     parseFloat(document.getElementById('loan_amount').value),
+                    loan_term:       parseInt(document.getElementById('loan_term').value)
+                });
+                window.location.href = `/result?id=${data.app_id}`;
+            } catch (err) {
+                Flash.error(err.message);
+                document.getElementById('submitText').classList.remove('hidden');
+                document.getElementById('submitLoading').classList.add('hidden');
+                document.getElementById('submitBtn').disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

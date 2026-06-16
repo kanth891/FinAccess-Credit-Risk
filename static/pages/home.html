@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="FinAccess – AI-Powered Credit Risk Assessment. Get instant loan eligibility predictions.">
+    <title>FinAccess | AI Credit Risk Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <nav class="navbar" id="navbar"></nav>
+    <div id="flashContainer" class="flash-container"></div>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-bg-orbs">
+            <div class="orb orb-1"></div>
+            <div class="orb orb-2"></div>
+            <div class="orb orb-3"></div>
+        </div>
+        <div class="hero-content">
+            <div class="hero-badge"><span class="badge-dot"></span>AI-Powered Assessment</div>
+            <h1 class="hero-title">Smart Credit Risk<br><span class="gradient-text">Assessment Platform</span></h1>
+            <p class="hero-subtitle">Get instant loan eligibility predictions powered by machine learning. Understand your approval chances with transparent AI explanations.</p>
+            <div class="hero-actions" id="heroActions">
+                <!-- Populated by JS -->
+            </div>
+            <div class="hero-stats">
+                <div class="stat-item"><span class="stat-number">10K+</span><span class="stat-label">Training Records</span></div>
+                <div class="stat-divider"></div>
+                <div class="stat-item"><span class="stat-number">RandomForest</span><span class="stat-label">ML Algorithm</span></div>
+                <div class="stat-divider"></div>
+                <div class="stat-item"><span class="stat-number">SHAP</span><span class="stat-label">Explainability</span></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section class="features">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">How It Works</h2>
+                <p class="section-subtitle">Three simple steps to understand your loan eligibility</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon feature-icon-blue"><i class="fa-solid fa-clipboard-list"></i></div>
+                    <h3 class="feature-title">Submit Application</h3>
+                    <p class="feature-desc">Fill in your financial details including income, credit score, employment, and loan requirements.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon feature-icon-purple"><i class="fa-solid fa-robot"></i></div>
+                    <h3 class="feature-title">AI Analysis</h3>
+                    <p class="feature-desc">Our Random Forest model analyzes your profile against 10,000+ training records to predict approval likelihood.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon feature-icon-teal"><i class="fa-regular fa-lightbulb"></i></div>
+                    <h3 class="feature-title">SHAP Explanations</h3>
+                    <p class="feature-desc">Understand exactly why you were approved or rejected with transparent factor-by-factor explanations.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Detail Section -->
+    <section class="features-detail">
+        <div class="container">
+            <div class="detail-grid">
+                <div class="detail-text">
+                    <div class="detail-badge">Explainable AI</div>
+                    <h2 class="detail-title">Transparent Decisions, Not Black Boxes</h2>
+                    <p class="detail-desc">Unlike traditional loan scoring, FinAccess uses SHAP to break down every decision into human-readable factors, so you always know what's working for and against your application.</p>
+                    <ul class="detail-list">
+                        <li>✓ Top 3 factors supporting approval</li>
+                        <li>✓ Top 3 risk factors highlighted</li>
+                        <li>✓ Clear, jargon-free language</li>
+                        <li>✓ Track all past applications</li>
+                    </ul>
+                    <a href="/register" class="btn btn-primary" id="detailCta">Start Your Assessment</a>
+                </div>
+                <div class="detail-visual">
+                    <div class="mock-result-card">
+                        <div class="mock-header">
+                            <span class="mock-badge approved">✓ Approved</span>
+                            <span class="mock-score">89%</span>
+                        </div>
+                        <div class="mock-factors">
+                            <p class="mock-factor-label positive-label">Why Approved:</p>
+                            <div class="mock-factor positive-factor">+ Strong credit score (740)</div>
+                            <div class="mock-factor positive-factor">+ Stable employment (8 years)</div>
+                            <div class="mock-factor positive-factor">+ High annual income ($95K)</div>
+                            <p class="mock-factor-label negative-label">Risk Factors:</p>
+                            <div class="mock-factor negative-factor">− Existing debt of $12,000</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="footer-container">
+            <p>&copy; 2024 FinAccess – AI-Powered Credit Risk Assessment</p>
+            <p class="footer-sub">Academic Project · Built with Flask, Scikit-Learn &amp; SHAP</p>
+        </div>
+    </footer>
+
+    <script src="/static/js/main.js"></script>
+    <script>
+        UI.renderNavbar('home');
+        const user = Auth.getUser();
+        const actions = document.getElementById('heroActions');
+        if (user) {
+            const dest = user.is_admin ? '/admin' : '/apply';
+            const dash = user.is_admin ? '/admin' : '/dashboard';
+            actions.innerHTML = `<a href="${dest}" class="btn btn-primary btn-lg">Apply for a Loan</a>
+                                  <a href="${dash}" class="btn btn-ghost btn-lg">Go to Dashboard</a>`;
+            document.getElementById('detailCta').style.display = 'none';
+        } else {
+            actions.innerHTML = `<a href="/register" class="btn btn-primary btn-lg">Get Started Free</a>
+                                  <a href="/login" class="btn btn-ghost btn-lg">Sign In</a>`;
+        }
+    </script>
+</body>
+</html>

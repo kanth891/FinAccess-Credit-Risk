@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assessment Result | FinAccess</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <nav class="navbar" id="navbar"></nav>
+    <div id="flashContainer" class="flash-container"></div>
+
+    <div class="page-container" id="mainContent">
+        <div class="empty-state">
+            <div class="empty-icon"><i class="fa-solid fa-hourglass-half"></i></div>
+            <h3 class="empty-title">Loading result...</h3>
+        </div>
+    </div>
+
+    <footer class="footer"><div class="footer-container">
+        <p>&copy; 2024 FinAccess – AI-Powered Credit Risk Assessment</p>
+        <p class="footer-sub">Academic Project · Built with Flask, Scikit-Learn &amp; SHAP</p>
+    </div></footer>
+
+    <script src="/static/js/main.js"></script>
+    <script>
+        if (!Auth.requireAuth()) throw new Error('not authed');
+        UI.renderNavbar('result');
+
+        async function loadResult() {
+            // Get app_id from query param
+            const params = new URLSearchParams(window.location.search);
+            const appId = params.get('id');
+            if (!appId) { window.location.href = '/history'; return; }
+
+            try {
+                const data = await API.get(`/api/result/${appId}`);
+                const a = data.application;
+                const isApproved = a.decision === 'Approved';
+                const positives = a.positive_factors || [];
+                const negatives = a.negative_factors || [];
+
+                // Gauge circumference = 2π×50 ≈ 314.16
+                const dashVal = (a.approval_probability / 100 * 314).toFixed(1);
+                const gaugeClass = isApproved ? 'gauge-approved' : 'gauge-rejected';
+                const riskClass = a.risk_score >= 70 ? 'risk-low' : a.risk_score >= 50 ? 'risk-medium' : 'risk-high';
+                const riskLabel = a.risk_score >= 70 ? 'Low Risk' : a.risk_score >= 50 ? 'Medium Risk' : 'High Risk';
+                const bannerClass = isApproved ? 'banner-approved' : 'banner-rejected';
+                const bannerMsg = isApproved
+                    ? 'Your loan application profile meets our AI model\'s criteria.'
+                    : 'Your current profile presents elevated risk factors. See details below.';
+
+                const formatDate = (str) => new Date(str).toLocaleString('en-US', {month:'long',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'});
+
+                document.getElementById('mainContent').innerHTML = `
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">Assessment Result</h1>
+                        <p class="page-subtitle">Application #${a.id} · ${formatDate(a.created_at)}</p>
+                    </div>
+                    <a href="/apply" class="btn btn-primary">+ New Application</a>
+                </div>
+
+                <!-- Decision Banner -->
+                <div class="decision-banner ${bannerClass}">
+                    <div class="banner-icon">${isApproved ? '<i class="fa-solid fa-check" style="color: #22c55e;"></i>' : '<i class="fa-solid fa-xmark" style="color: #ef4444;"></i>'}</div>
+                    <div class="banner-content">
+                        <h2 class="banner-title">${a.decision}</h2>
+                        <p class="banner-subtitle">${bannerMsg}</p>
+                    </div>
+                </div>
+
+                <!-- Score Cards -->
+                <div class="result-scores-grid">
+                    <div class="card score-gauge-card">
+                        <div class="card-body center-content">
+                            <div class="gauge-wrapper">
+                                <svg class="gauge-svg" viewBox="0 0 120 120">
+                                    <circle class="gauge-bg" cx="60" cy="60" r="50"/>
+                                    <circle class="${gaugeClass} gauge-fill" cx="60" cy="60" r="50"
+                                        stroke-dasharray="${dashVal} 314" stroke-dashoffset="78.5"/>
+                                </svg>
+                                <div class="gauge-center">
+                                    <div class="gauge-value">${a.approval_probability}%</div>
+                                    <div class="gauge-label">Approval</div>
+                                </div>
+                            </div>
+                            <p class="gauge-title">Approval Probability</p>
+                        </div>
+                    </div>
+
+                    <div class="card risk-score-card">
+                        <div class="card-body center-content">
+                            <div class="risk-circle ${riskClass}">${a.risk_score}</div>
+                            <p class="gauge-title">Risk Score</p>
+                            <p class="risk-label">${riskLabel}</p>
+                        </div>
+                    </div>
+
+                    <div class="card summary-card">
+                        <div class="card-header"><h3 class="card-title">Application Summary</h3></div>
+                        <div class="card-body">
+                            <div class="summary-grid">
+                                <div class="summary-item"><span class="summary-label">Loan Amount</span><span class="summary-value">${UI.currency(a.loan_amount)}</span></div>
+                                <div class="summary-item"><span class="summary-label">Loan Term</span><span class="summary-value">${a.loan_term} months</span></div>
+                                <div class="summary-item"><span class="summary-label">Annual Income</span><span class="summary-value">${UI.currency(a.annual_income)}</span></div>
+                                <div class="summary-item"><span class="summary-label">Credit Score</span><span class="summary-value">${a.credit_score}</span></div>
+                                <div class="summary-item"><span class="summary-label">Employment</span><span class="summary-value">${a.employment_type}</span></div>
+                                <div class="summary-item"><span class="summary-label">Existing Debt</span><span class="summary-value">${UI.currency(a.existing_debt)}</span></div>
+                                <div class="summary-item"><span class="summary-label">Years Employed</span><span class="summary-value">${a.years_employed} yrs</span></div>
+                                <div class="summary-item"><span class="summary-label">Age</span><span class="summary-value">${a.age}</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SHAP Explanations -->
+                <div class="shap-section">
+                    <h2 class="shap-title"><i class="fa-solid fa-robot"></i> AI Explanation (SHAP Analysis)</h2>
+                    <p class="shap-subtitle">Why did the model make this decision? Here are the key factors:</p>
+                    <div class="shap-grid">
+                        <div class="shap-column">
+                            <div class="shap-column-header positive-header">
+                                <span class="shap-header-icon"><i class="fa-solid fa-heart" style="color: #22c55e;"></i></span>
+                                <h3>Supporting Factors</h3>
+                                <span class="shap-header-sub">Factors working in your favor</span>
+                            </div>
+                            ${positives.length > 0
+                                ? positives.map(f => `<div class="shap-card positive-card"><span class="shap-card-icon"><i class="fa-solid fa-check" style="color: #22c55e;"></i></span><p class="shap-card-text">${f}</p></div>`).join('')
+                                : '<div class="shap-card neutral-card"><p class="shap-card-text">No significant positive factors identified.</p></div>'
+                            }
+                        </div>
+                        <div class="shap-column">
+                            <div class="shap-column-header negative-header">
+                                <span class="shap-header-icon"><i class="fa-solid fa-triangle-exclamation" style="color: #f59e0b;"></i></span>
+                                <h3>Risk Factors</h3>
+                                <span class="shap-header-sub">Factors increasing risk</span>
+                            </div>
+                            ${negatives.length > 0
+                                ? negatives.map(f => `<div class="shap-card negative-card"><span class="shap-card-icon"><i class="fa-solid fa-triangle-exclamation" style="color: #f59e0b;"></i></span><p class="shap-card-text">${f}</p></div>`).join('')
+                                : '<div class="shap-card neutral-card"><p class="shap-card-text">No significant risk factors identified.</p></div>'
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="result-actions">
+                    <a href="/history" class="btn btn-outline">View History</a>
+                    <a href="/apply" class="btn btn-primary">New Application</a>
+                </div>`;
+
+                UI.animateProgressBars();
+            } catch (err) {
+                Flash.error('Failed to load result: ' + err.message);
+            }
+        }
+
+        loadResult();
+    </script>
+</body>
+</html>

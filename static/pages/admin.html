@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | FinAccess</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <nav class="navbar" id="navbar"></nav>
+    <div id="flashContainer" class="flash-container"></div>
+
+    <div class="page-container">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">Admin Dashboard <i class="fa-solid fa-shield-halved"></i>️</h1>
+                <p class="page-subtitle">Platform overview and management</p>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid stats-grid-5" id="statsGrid">
+            <div class="stat-card"><div class="stat-card-icon icon-blue"><i class="fa-solid fa-users"></i></div><div class="stat-card-body"><div class="stat-card-number" id="sUsers">—</div><div class="stat-card-label">Total Users</div></div></div>
+            <div class="stat-card"><div class="stat-card-icon icon-purple"><i class="fa-regular fa-folder-open"></i></div><div class="stat-card-body"><div class="stat-card-number" id="sApps">—</div><div class="stat-card-label">Total Applications</div></div></div>
+            <div class="stat-card"><div class="stat-card-icon icon-green"><i class="fa-solid fa-check" style="color: #22c55e;"></i></div><div class="stat-card-body"><div class="stat-card-number" id="sApproved">—</div><div class="stat-card-label">Approved</div></div></div>
+            <div class="stat-card"><div class="stat-card-icon icon-red"><i class="fa-solid fa-xmark" style="color: #ef4444;"></i></div><div class="stat-card-body"><div class="stat-card-number" id="sRejected">—</div><div class="stat-card-label">Rejected</div></div></div>
+            <div class="stat-card"><div class="stat-card-icon icon-teal"><i class="fa-solid fa-chart-column"></i></div><div class="stat-card-body"><div class="stat-card-number" id="sRate">—</div><div class="stat-card-label">Approval Rate</div></div></div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="admin-charts-row">
+            <div class="card">
+                <div class="card-header"><h3 class="card-title">Decision Distribution</h3></div>
+                <div class="card-body" id="distBody"><p class="text-muted">Loading...</p></div>
+            </div>
+            <div class="card">
+                <div class="card-header"><h3 class="card-title">Average Risk Score</h3></div>
+                <div class="card-body center-content" id="riskBody"><p class="text-muted">Loading...</p></div>
+            </div>
+        </div>
+
+        <!-- Users Table -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Registered Users</h3>
+                <span class="card-badge" id="usersCount">—</span>
+            </div>
+            <div class="card-body" id="usersBody">
+                <div class="empty-state"><div class="empty-icon"><i class="fa-solid fa-hourglass-half"></i></div><h3 class="empty-title">Loading...</h3></div>
+            </div>
+        </div>
+
+        <!-- Applications Table -->
+        <div class="card">
+            <div class="card-header"><h3 class="card-title">Recent Applications (Last 20)</h3></div>
+            <div class="card-body" id="appsBody">
+                <div class="empty-state"><div class="empty-icon"><i class="fa-solid fa-hourglass-half"></i></div><h3 class="empty-title">Loading...</h3></div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer"><div class="footer-container">
+        <p>&copy; 2024 FinAccess – AI-Powered Credit Risk Assessment</p>
+        <p class="footer-sub">Academic Project · Built with Flask, Scikit-Learn &amp; SHAP</p>
+    </div></footer>
+
+    <script src="/static/js/main.js"></script>
+    <script>
+        if (!Auth.requireAdmin()) throw new Error('not admin');
+        UI.renderNavbar('admin');
+
+        async function loadAdmin() {
+            try {
+                // Load stats
+                const stats = await API.get('/api/admin/stats');
+                document.getElementById('sUsers').textContent    = stats.total_users;
+                document.getElementById('sApps').textContent     = stats.total_apps;
+                document.getElementById('sApproved').textContent = stats.approved;
+                document.getElementById('sRejected').textContent = stats.rejected;
+                document.getElementById('sRate').textContent     = stats.approval_rate + '%';
+
+                // Distribution bar
+                const distBody = document.getElementById('distBody');
+                if (stats.total_apps > 0) {
+                    const rejRate = (100 - stats.approval_rate).toFixed(1);
+                    distBody.innerHTML = `
+                        <div class="distribution-bar">
+                            <div class="dist-approved" style="width:${stats.approval_rate}%">${stats.approval_rate}%</div>
+                            <div class="dist-rejected" style="width:${rejRate}%">${rejRate}%</div>
+                        </div>
+                        <div class="dist-legend">
+                            <span class="legend-item legend-approved">● Approved (${stats.approved})</span>
+                            <span class="legend-item legend-rejected">● Rejected (${stats.rejected})</span>
+                        </div>`;
+                } else {
+                    distBody.innerHTML = '<p class="text-muted">No applications yet.</p>';
+                }
+
+                // Avg risk
+                const riskCls = stats.avg_risk >= 70 ? 'risk-low' : stats.avg_risk >= 50 ? 'risk-medium' : 'risk-high';
+                const riskLbl = stats.avg_risk >= 70 ? 'Overall Low Risk' : stats.avg_risk >= 50 ? 'Overall Medium Risk' : 'Overall High Risk';
+                const barCls  = stats.avg_risk >= 70 ? 'progress-green' : stats.avg_risk >= 50 ? 'progress-yellow' : 'progress-red';
+                document.getElementById('riskBody').innerHTML = `
+                    <div class="avg-risk-display">
+                        <span class="avg-risk-value ${riskCls}">${stats.avg_risk}</span>
+                        <p class="avg-risk-label">${riskLbl}</p>
+                        <div class="avg-risk-bar-wrapper">
+                            <div class="avg-risk-bar ${barCls}" style="width:${stats.avg_risk}%"></div>
+                        </div>
+                    </div>`;
+                UI.animateProgressBars();
+            } catch (err) {
+                Flash.error('Failed to load stats: ' + err.message);
+            }
+
+            try {
+                // Users table
+                const ud = await API.get('/api/admin/users');
+                document.getElementById('usersCount').textContent = ud.users.length;
+                const usersBody = document.getElementById('usersBody');
+                if (ud.users.length === 0) {
+                    usersBody.innerHTML = `<div class="empty-state"><div class="empty-icon"><i class="fa-solid fa-users"></i></div><h3 class="empty-title">No users registered</h3></div>`;
+                } else {
+                    usersBody.innerHTML = `<div class="table-wrapper"><table class="data-table">
+                        <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Joined</th><th>Applications</th></tr></thead>
+                        <tbody>${ud.users.map(u => `<tr>
+                            <td class="text-muted">#${u.id}</td>
+                            <td><strong>${u.name}</strong></td>
+                            <td class="text-muted">${u.email}</td>
+                            <td>${UI.date(u.created_at)}</td>
+                            <td><span class="badge badge-neutral">${u.application_count}</span></td>
+                        </tr>`).join('')}
+                        </tbody></table></div>`;
+                }
+            } catch (err) {
+                Flash.error('Failed to load users: ' + err.message);
+            }
+
+            try {
+                // Applications table
+                const ad = await API.get('/api/admin/applications');
+                const appsBody = document.getElementById('appsBody');
+                if (ad.applications.length === 0) {
+                    appsBody.innerHTML = '<p class="text-muted">No applications yet.</p>';
+                } else {
+                    appsBody.innerHTML = `<div class="table-wrapper"><table class="data-table">
+                        <thead><tr><th>ID</th><th>User</th><th>Date</th><th>Loan Amount</th><th>Credit Score</th><th>Risk Score</th><th>Decision</th></tr></thead>
+                        <tbody>${ad.applications.map(a => `<tr>
+                            <td class="text-muted">#${a.id}</td>
+                            <td>${a.user_name}</td>
+                            <td>${UI.date(a.created_at)}</td>
+                            <td>${UI.currency(a.loan_amount)}</td>
+                            <td>${a.credit_score}</td>
+                            <td>${UI.riskBar(a.risk_score)}</td>
+                            <td>${UI.badge(a.decision)}</td>
+                        </tr>`).join('')}
+                        </tbody></table></div>`;
+                    UI.animateProgressBars();
+                }
+            } catch (err) {
+                Flash.error('Failed to load applications: ' + err.message);
+            }
+        }
+
+        loadAdmin();
+    </script>
+</body>
+</html>

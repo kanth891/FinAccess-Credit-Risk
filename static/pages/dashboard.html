@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | FinAccess</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <nav class="navbar" id="navbar"></nav>
+    <div id="flashContainer" class="flash-container"></div>
+
+    <div class="page-container">
+        <!-- Header -->
+        <div class="page-header">
+            <div>
+                <h1 class="page-title" id="welcomeMsg">Loading...</h1>
+                <p class="page-subtitle">Here's your loan application overview</p>
+            </div>
+            <a href="/apply" class="btn btn-primary">+ New Application</a>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-card-icon icon-blue"><i class="fa-regular fa-folder-open"></i></div>
+                <div class="stat-card-body">
+                    <div class="stat-card-number" id="statTotal" data-count="0">0</div>
+                    <div class="stat-card-label">Total Applications</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-icon icon-green"><i class="fa-solid fa-check" style="color: #22c55e;"></i></div>
+                <div class="stat-card-body">
+                    <div class="stat-card-number" id="statApproved" data-count="0">0</div>
+                    <div class="stat-card-label">Approved</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-icon icon-red"><i class="fa-solid fa-xmark" style="color: #ef4444;"></i></div>
+                <div class="stat-card-body">
+                    <div class="stat-card-number" id="statRejected" data-count="0">0</div>
+                    <div class="stat-card-label">Rejected</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-icon icon-purple"><i class="fa-solid fa-chart-column"></i></div>
+                <div class="stat-card-body">
+                    <div class="stat-card-number" id="statRate">—</div>
+                    <div class="stat-card-label">Approval Rate</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Applications -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Recent Applications</h2>
+                <a href="/history" class="btn btn-ghost btn-sm" id="viewAllBtn" style="display:none">View All →</a>
+            </div>
+            <div class="card-body" id="recentBody">
+                <div class="empty-state">
+                    <div class="empty-icon"><i class="fa-solid fa-hourglass-half"></i></div>
+                    <h3 class="empty-title">Loading...</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer"><div class="footer-container">
+        <p>&copy; 2024 FinAccess – AI-Powered Credit Risk Assessment</p>
+        <p class="footer-sub">Academic Project · Built with Flask, Scikit-Learn &amp; SHAP</p>
+    </div></footer>
+
+    <script src="/static/js/main.js"></script>
+    <script>
+        if (!Auth.requireAuth()) throw new Error('not authed');
+        UI.renderNavbar('dashboard');
+
+        async function loadDashboard() {
+            try {
+                const data = await API.get('/api/dashboard');
+                const user = data.user;
+
+                // Welcome
+                document.getElementById('welcomeMsg').textContent = `Welcome back, ${user.name.split(' ')[0]}! <i class="fa-solid fa-hand"></i>`;
+
+                // Counters
+                const total = data.total, approved = data.approved, rejected = data.rejected;
+                ['statTotal','statApproved','statRejected'].forEach((id, i) => {
+                    const val = [total, approved, rejected][i];
+                    const el = document.getElementById(id);
+                    el.dataset.count = val;
+                });
+                document.getElementById('statRate').textContent = total > 0 ? `${data.approval_rate}%` : '—';
+                UI.animateCounters();
+
+                if (total > 0) document.getElementById('viewAllBtn').style.display = '';
+
+                // Recent table
+                const body = document.getElementById('recentBody');
+                if (data.recent.length === 0) {
+                    body.innerHTML = `<div class="empty-state">
+                        <div class="empty-icon"><i class="fa-solid fa-inbox"></i></div>
+                        <h3 class="empty-title">No applications yet</h3>
+                        <p class="empty-desc">Submit your first loan application to get an AI-powered eligibility assessment.</p>
+                        <a href="/apply" class="btn btn-primary">Apply Now</a>
+                    </div>`;
+                    return;
+                }
+
+                body.innerHTML = `<div class="table-wrapper"><table class="data-table">
+                    <thead><tr>
+                        <th>Date</th><th>Loan Amount</th><th>Credit Score</th>
+                        <th>Risk Score</th><th>Approval</th><th>Decision</th><th>Action</th>
+                    </tr></thead>
+                    <tbody>${data.recent.map(a => `<tr>
+                        <td>${UI.date(a.created_at)}</td>
+                        <td>${UI.currency(a.loan_amount)}</td>
+                        <td>${UI.creditChip(a.credit_score)}</td>
+                        <td>${UI.riskBar(a.risk_score)}</td>
+                        <td>${a.approval_probability}%</td>
+                        <td>${UI.badge(a.decision)}</td>
+                        <td><a href="/result?id=${a.id}" class="btn btn-ghost btn-xs">Details</a></td>
+                    </tr>`).join('')}
+                    </tbody></table></div>`;
+                UI.animateProgressBars();
+            } catch (err) {
+                Flash.error('Failed to load dashboard: ' + err.message);
+            }
+        }
+
+        loadDashboard();
+    </script>
+</body>
+</html>
