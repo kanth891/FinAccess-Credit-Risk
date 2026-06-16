@@ -18,9 +18,12 @@ class Config:
     MYSQL_PORT = os.environ.get('MYSQL_PORT', '3306')
     MYSQL_DB = os.environ.get('MYSQL_DB', 'finaccess_db')
 
-    MYSQL_URI = os.environ.get(
-        'DATABASE_URL',
-        'mysql+pymysql://root:@localhost:3306/finaccess_db'
-    )
+    _raw_uri = os.environ.get('DATABASE_URL', 'mysql+pymysql://root:@localhost:3306/finaccess_db')
+    
+    # Automatically convert Aiven's mysql:// to SQLAlchemy's expected mysql+pymysql://
+    if _raw_uri.startswith('mysql://'):
+        MYSQL_URI = _raw_uri.replace('mysql://', 'mysql+pymysql://', 1)
+    else:
+        MYSQL_URI = _raw_uri
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
