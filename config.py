@@ -18,9 +18,9 @@ class Config:
     MYSQL_PORT = os.environ.get('MYSQL_PORT', '3306')
     MYSQL_DB = os.environ.get('MYSQL_DB', 'finaccess_db')
 
-    MYSQL_URI = (
-        f"mysql+pymysql://{MYSQL_USER}:{MYSQL_PASSWORD}"
-        f"@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DB}"
+    MYSQL_URI = os.environ.get(
+        'DATABASE_URL',
+        'mysql+pymysql://root:@localhost:3306/finaccess_db'
     )
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False

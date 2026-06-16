@@ -22,8 +22,7 @@ def create_app():
     app.config['JWT_HEADER_TYPE'] = 'Bearer'
 
     # Use MySQL
-    db_uri = _get_database_uri(Config)
-    app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
+    app.config['SQLALCHEMY_DATABASE_URI'] = Config.MYSQL_URI
 
     # Initialize extensions
     db.init_app(app)
@@ -50,26 +49,6 @@ def create_app():
 
     return app
 
-
-def _get_database_uri(Config):
-    """Connect to MySQL."""
-    try:
-        conn = pymysql.connect(
-            host=Config.MYSQL_HOST,
-            port=int(Config.MYSQL_PORT),
-            user=Config.MYSQL_USER,
-            password=Config.MYSQL_PASSWORD,
-            connect_timeout=3
-        )
-        cursor = conn.cursor()
-        cursor.execute(f"CREATE DATABASE IF NOT EXISTS `{Config.MYSQL_DB}`")
-        conn.commit()
-        conn.close()
-        print(f"[DB] Connected to MySQL. Using database: {Config.MYSQL_DB}")
-        return Config.MYSQL_URI
-    except Exception as e:
-        print(f"[DB] MySQL unavailable ({e}). Please check your MySQL configuration and ensure the server is running.")
-        raise
 
 
 def _seed_admin():
