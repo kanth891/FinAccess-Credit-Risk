@@ -24,7 +24,7 @@ A student-level academic project that demonstrates end-to-end machine learning i
 | Database     | MySQL (Configured via .env) |
 | ML           | Scikit-Learn (RandomForestClassifier) |
 | Explainability | SHAP (TreeExplainer) |
-| Frontend     | HTML5, CSS3, Vanilla JavaScript, Jinja2 |
+| Frontend     | HTML5, CSS3, Vanilla JavaScript |
 
 ---
 
